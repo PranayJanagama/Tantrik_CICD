@@ -1,0 +1,17 @@
+{
+  "title": "Inspector Notebook",
+  "description": "Inspector Notebook settings.",
+  "jupyter.lab.menus": {
+    "context": [
+      {
+        "command": "inspector:open",
+        "selector": ".jp-Notebook",
+        "disabled":true,
+        "rank": 50
+      }
+    ]
+  },
+  "properties": {},
+  "additionalProperties": false,
+  "type": "object"
+}

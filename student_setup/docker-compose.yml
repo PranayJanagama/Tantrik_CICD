@@ -1,0 +1,33 @@
+services:
+  nbgrader:
+    # image: pranayjanagama/student_setup:latest
+    image: teledev/tantrik:student_v2
+    container_name: student
+    environment:
+      - TZ=Asia/Kolkata
+    # network_mode: host 
+    ports: 
+      - 8000:8000    
+      # - 8579:8579 
+    volumes: 
+      - ./dist-packages/nativeauthenticator/templates:/usr/local/lib/python3.10/dist-packages/nativeauthenticator/templates
+      - ./dist-packages/nativeauthenticator/templates/404.html:/usr/local/share/jupyterhub/templates/404.html
+      - ./dist-packages/jupyterhub/apihandlers:/usr/local/lib/python3.10/dist-packages/jupyterhub/apihandlers
+      # - ./facelogin.html:/usr/local/lib/python3.10/dist-packages/nativeauthenticator/templates/native-login.html
+      - ./exchange:/usr/local/share/nbgrader/exchange
+      # - /external_storage/Tantrik/tantrik_docker/userhome:/home
+      - ../studenthome:/home
+      - ./setup_pages/setup_script.sh:/usr/local/bin/setup_script.sh
+      - ./srv/manage_assignments:/srv/manage_assignments
+      - ./srv/nbgrader/jupyterhub:/srv/nbgrader/jupyterhub
+      - ./srv/nbgrader/nbgrader:/srv/nbgrader/nbgrader
+      - ./srv/shareddata:/srv/shareddata
+      - ./@jupyterlab:/usr/local/share/jupyter/lab/schemas/@jupyterlab
+      - ./custom_pages:/usr/local/share/custom_pages
+      - ./student_exam_clean.sh:/usr/local/bin/student_exam_clean.sh
+      - ./change_permissions.sh:/usr/local/bin/change_permissions.sh
+      - ./custom_pages/copypaste.js:/usr/local/share/jupyter/labextensions/@jupyter/nbgrader/static/lib_course_list_courselist_js-lib_course_list_index_js-lib_index_js.ef460783d34f84153eeb.js
+
+        
+    restart: always       
+    # restart: on-failure

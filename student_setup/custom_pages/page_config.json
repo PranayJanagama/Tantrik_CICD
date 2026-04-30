@@ -1,0 +1,27 @@
+{
+  "disabledExtensions": {
+    "@jupyterlab/docmanager-extension:download": true,
+    "@jupyterlab/filebrowser-extension:download": true,
+    "@jupyterlab/extensionmanager-extension": true,
+    "@jupyterlab/launcher-extension": true,
+    "@jupyterlab/application-extension:property-inspector": true,
+    "@jupyterlab/debugger-extension:main": true,
+    "@jupyterlab/application-extension:sidebar": false,
+    "@jupyter/nbgrader:formgrader": true,
+    "@jupyter/nbgrader:create-assignment": true,
+    "@jupyter/nbgrader:course-list": true,
+    "@jupyter/nbgrader:assignment-list": false
+
+  },
+  "terminalsAvailable": false,
+  "lockedExtensions": {
+    "@jupyterlab/docmanager-extension:download": true,
+    "@jupyterlab/filebrowser-extension:download": true,
+    "@jupyterlab/extensionmanager-extension": true,
+    "@jupyterlab/launcher-extension": true,
+    "@jupyterlab/application-extension:sidebar": false,
+    "nbgrader:formgrader": true,
+    "nbgrader:create-assignment": true,
+    "nbgrader:course-list": true
+  }
+}

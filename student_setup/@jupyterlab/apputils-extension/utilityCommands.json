@@ -1,0 +1,36 @@
+{
+  "title": "Shortcuts Help",
+  "description": "Shortcut help settings.",
+  "jupyter.lab.menus": {
+    "main": [
+      {
+        "id": "jp-mainmenu-help",
+        "items": [
+          {
+            "type": "separator",
+            "rank": 0.1
+          },
+          {
+            "command": "apputils:display-shortcuts",
+            "rank": 0.1,
+            "disabled":true
+          },
+          {
+            "type": "separator",
+            "rank": 0.1
+          }
+        ]
+      }
+    ]
+  },
+  "jupyter.lab.shortcuts": [
+    {
+      "command": "apputils:display-shortcuts",
+      "keys": [""],
+      "selector": "body"
+    }
+  ],
+  "properties": {},
+  "type": "object",
+  "additionalProperties": false
+}

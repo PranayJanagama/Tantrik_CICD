@@ -1,0 +1,21 @@
+{
+  "title": "Setting Editor",
+  "description": "Setting editor settings.",
+  "jupyter.lab.shortcuts": [
+    {
+      "command": "settingeditor:open",
+      "args": {},
+      "keys": [""],
+      "selector": "body"
+    },
+    {
+      "command": "settingeditor:save",
+      "args": {},
+      "keys": [""],
+      "selector": ".jp-SettingEditor"
+    }
+  ],
+  "properties": {},
+  "additionalProperties": false,
+  "type": "object"
+}

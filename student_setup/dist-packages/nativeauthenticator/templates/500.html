@@ -1,0 +1,10 @@
+{% extends "page.html" %}
+
+{% block main %}
+<div class="container">
+  <h2>Internal Server Error</h2>
+  <p>The user <strong>{{ user.name }}</strong> encountered an internal server error.</p>
+  <p>Please contact the administrator.</p>
+  <p><a href="{{ base_url }}logout">Logout</a></p>
+</div>
+{% endblock %}

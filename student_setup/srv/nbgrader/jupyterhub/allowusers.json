@@ -1,0 +1,26 @@
+{
+  "tele": {
+    "allowed": true
+  },
+  "demostudent1": {
+    "allowed": true
+  },
+  "demostudent2": {
+    "allowed": true
+  },
+  "demostudent3": {
+    "allowed": true
+  },
+  "demostudent4": {
+    "allowed": true
+  },
+  "john": {
+    "allowed": false
+  },
+  "tppranay": {
+    "allowed": true
+  },
+  "alice": {
+    "allowed": true
+  }
+}

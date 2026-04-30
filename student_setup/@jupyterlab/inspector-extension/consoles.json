@@ -1,0 +1,17 @@
+{
+  "title": "Inspector Notebook",
+  "description": "Inspector Notebook settings.",
+  "jupyter.lab.menus": {
+    "context": [
+      {
+        "command": "inspector:open",
+        "disabled":true,
+        "selector": ".jp-CodeConsole-promptCell",
+        "rank": 5
+      }
+    ]
+  },
+  "properties": {},
+  "additionalProperties": false,
+  "type": "object"
+}

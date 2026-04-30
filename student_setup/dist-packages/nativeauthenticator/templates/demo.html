@@ -1,0 +1,1317 @@
+{% extends "templates/page.html" %}
+
+{% block main %}
+
+{{ super() }}
+
+<!-- Force light color scheme so browser dark mode doesn't alter colors -->
+<meta name="color-scheme" content="light">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+  :root {
+    color-scheme: light;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    min-height: 100vh;
+    color: #212529;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .tantrik-container {
+    padding: 30px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 8px;
+    padding: 10px 10px;
+  }
+
+  .page-header h1 {
+    color: rgb(7, 7, 7);
+    font-size: 36px;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .page-header p {
+    color: rgba(14, 13, 13, 0.95);
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .course-box {
+    width: 100%;
+    margin: 30px auto;
+    border-radius: 16px;
+    padding: 0;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .course-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .course-box-header {
+    background: linear-gradient(135deg, #f37626 0%);
+    padding: 24px 30px;
+    overflow: hidden;
+  }
+
+  .course-box-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .table-wrapper {
+    padding: 0;
+    overflow-x: auto;
+  }
+
+  .assignment-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+
+  .assignment-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+  }
+
+  .assignment-table th {
+    padding: 18px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #495057;
+    white-space: nowrap;
+  }
+
+  .assignment-table td {
+    padding: 20px;
+    border-bottom: 1px solid #f1f3f5;
+    vertical-align: middle;
+    color: #212529;
+  }
+
+  /* Explicitly force Type (col 2) and Status (col 5) to same solid color */
+  .assignment-table th:nth-child(2),
+  .assignment-table td:nth-child(2),
+  .assignment-table th:nth-child(5),
+  .assignment-table td:nth-child(5) {
+    color: #212529;
+  }
+
+  .assignment-table tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  .assignment-table tbody tr:hover:not(.locked-row) {
+    background-color: #fff8f3;
+  }
+
+  .assignment-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .locked-row {
+    background: #f8f9fa;
+    opacity: 0.6;
+  }
+
+  .assignment-name {
+    font-weight: 600;
+    color: #212529;
+    font-size: 15px;
+  }
+
+  .notebook-list {
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .grade-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 18px;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .grade-excellent {
+    color: #387246;
+  }
+
+  .grade-good {
+    color: #0c5460;
+  }
+
+  .grade-average {
+    color: #856404;
+  }
+
+  .grade-poor {
+    color: #721c24;
+  }
+
+  .grade-none {
+    color: #6c757d;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 18px;
+    /* background-color: #e9ecef;  */
+    color: #212529;
+    /* solid dark text */
+  }
+
+  .status-unlocked::before {
+    content: '🔓';
+  }
+
+  .status-locked::before {
+    content: '🔒';
+  }
+
+  .tooltip {
+    position: relative;
+    cursor: help;
+  }
+
+  .tooltip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    background: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    z-index: 9999;
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #f37626 0%, #ff8f4d 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(243, 118, 38, 0.3);
+  }
+
+  .evaluate-btn {
+    background: linear-gradient(135deg, #8dcc3a 0%, #8dcc3a 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(243, 118, 38, 0.3);
+  }
+
+  .attempt-btn {
+    background: linear-gradient(135deg, #f37626 0%, #ff8f4d 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(243, 118, 38, 0.3);
+  }
+
+  .attempt-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .attempt-btn[disabled],
+  .submit-btn[disabled],
+  .evaluate-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .submit-btn:hover:not([disabled]) {
+    background: linear-gradient(135deg, #d96620 0%, #ff7a33 100%);
+    box-shadow: 0 4px 12px rgba(243, 118, 38, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .submit-btn:active:not([disabled]) {
+    transform: translateY(0);
+  }
+
+  .action-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  a.assignment-link {
+    color: #f37626;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  a.assignment-link::before {
+    content: '📄';
+    font-size: 16px;
+  }
+
+  a.assignment-link:hover {
+    color: #d96620;
+    text-decoration: underline;
+    transform: translateX(4px);
+  }
+
+  .locked-text {
+    color: #adb5bd;
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+  }
+
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+  }
+
+  .loading::after {
+    content: '...';
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+
+  @keyframes dots {
+
+    0%,
+    20% {
+      content: '.';
+    }
+
+    40% {
+      content: '..';
+    }
+
+    60%,
+    100% {
+      content: '...';
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .tantrik-container {
+      padding: 20px 15px;
+    }
+
+    .course-box {
+      margin: 20px auto;
+    }
+
+    .assignment-table th,
+    .assignment-table td {
+      padding: 15px;
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-header h1 {
+      font-size: 28px;
+    }
+
+    .course-box-title {
+      font-size: 20px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .assignment-table {
+      min-width: 800px;
+    }
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 4px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: #f37626;
+    border-radius: 4px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #d96620;
+  }
+
+  #globalLoaderOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+  }
+
+  #globalLoaderOverlay.active {
+    display: flex;
+  }
+
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 6px solid #f1f3f5;
+    border-top-color: #f37626;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .assignment-summary {
+    padding: 12px 20px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 24px;
+    margin-bottom: 36px;
+    text-align: center;
+  }
+
+  /* ===== Overlay ===== */
+  .confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    /* deep slate */
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: overlayFade 0.2s ease-out;
+  }
+
+  /* ===== Modal Box ===== */
+  .confirm-modal {
+    background: #ffffff;
+    width: 420px;
+    max-width: 92%;
+    border-radius: 16px;
+    padding: 28px 26px;
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    animation: modalPop 0.25s ease-out;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ===== Title ===== */
+  .confirm-modal h3 {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  /* ===== Text ===== */
+  .confirm-modal p {
+    font-size: 14.5px;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Buttons Container ===== */
+  .confirm-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  /* ===== Common Button ===== */
+  .confirm-buttons button {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  /* ===== Cancel Button ===== */
+  .confirm-cancel {
+    /* background: #f3f4f6;
+    color: #374151; */
+    background: #f37626;
+    color: #ffffff;
+    box-shadow: #f37626
+  }
+
+  .confirm-cancel:hover {
+    /* background: #e5e7eb;
+    transform: translateY(-1px); */
+    transform: translateY(-1px);
+    box-shadow: #f37626
+  }
+
+  /* ===== OK Button ===== */
+  .confirm-ok {
+    /* background: linear-gradient(135deg, #ef4444, #dc2626); */
+    /* background: #f37626;
+    color: #ffffff;
+    box-shadow: #f37626 */
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .confirm-ok:hover {
+    /* transform: translateY(-1px);
+    box-shadow: #f37626 */
+    background: #e5e7eb;
+    transform: translateY(-1px);
+  }
+
+  /* ===== Animations ===== */
+  @keyframes modalPop {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes overlayFade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+</style>
+
+<div id="globalLoaderOverlay">
+  <div class="spinner"></div>
+</div>
+
+<div class="page-header">
+  <h1>Tantrik Assessment</h1>
+</div>
+
+<div class="tantrik-container">
+  <div id="allCourseTables"></div>
+</div>
+
+<script>
+  let pendingCount = 0;
+
+  function showLoader() {
+    pendingCount += 1;
+    document.getElementById("globalLoaderOverlay").classList.add("active");
+  }
+
+  function hideLoader() {
+    pendingCount = Math.max(0, pendingCount - 1);
+    if (pendingCount === 0) {
+      document.getElementById("globalLoaderOverlay").classList.remove("active");
+    }
+  }
+
+  // function getXsrfToken() {
+  //   const match = document.cookie.match("\\b_xsrf=([^;]*)\\b");
+  //   return match ? match[1] : "";
+  // }
+
+  function getXsrfToken() {
+    const match = document.cookie.match(/\b_xsrf=([^;]*)\b/);
+    return match ? match[1] : "";
+  }
+
+  async function getAccessToken() {
+    const res = await fetch(`/hub/api/user`, { credentials: "same-origin" });
+    let username;
+
+    if (!res.ok) {
+      const path = window.location.pathname.split('/');
+      username = path[3];
+    } else {
+      const data = await res.json();
+      username = data.name;
+    }
+    const secretKey = "key123$";
+    function encrypt(text, key) {
+      let result = "";
+      for (let i = 0; i < text.length; i++) {
+        const charCode = text.charCodeAt(i);
+        const keyCode = key.charCodeAt(i % key.length);
+        result += String.fromCharCode(charCode ^ keyCode);
+      }
+      return btoa(result);
+    }
+    function generateRandomString(length) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+    const message = generateRandomString(100) + "$$$" + username;
+    const encryptedText = encrypt(message, secretKey);
+    return { encryptedText, username };
+  }
+
+  function gradeToNumber(g) {
+    if (g === null || g === undefined) return 0;
+    if (typeof g === "number") return g;
+    const cleaned = String(g).replace("%", "").trim();
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function getGradeClass(grade) {
+    const num = gradeToNumber(grade);
+    if (num === 0) return 'grade-none';
+    if (num >= 80) return 'grade-excellent';
+    if (num >= 60) return 'grade-good';
+    if (num >= 50) return 'grade-average';
+    return 'grade-poor';
+  }
+
+  function convertUTCtoIST(utcString) {
+    if (!utcString || utcString === "—") return "—";
+    const formatted = utcString.replace(" ", "T");
+    const dateObj = new Date(formatted + "Z");
+    return dateObj.toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+  }
+
+  async function loadAssignments(course) {
+    const container = document.getElementById("allCourseTables");
+
+    // Create or select course box
+    let box = container.querySelector(`[data-course-box="${course}"]`);
+    if (!box) {
+      box = document.createElement("div");
+      box.className = "course-box";
+      box.setAttribute("data-course-box", course);
+      container.appendChild(box);
+    }
+
+    // Temporary initial HTML (module name will be inserted later)
+    box.innerHTML = `
+  <div class="course-box-header">
+    <div class="course-box-title" style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      width:100%;
+    ">
+
+      <!-- LEFT SIDE :: Course + Module -->
+      <div class="left-info" style="font-size:22px; font-weight:600; color:white;">
+        Course: <span style="color:#fff59d;" class="course-name">${course}</span>
+        &nbsp; | &nbsp;
+        Module: <span style="color:#fff59d;" class="module-name"></span>
+      </div>
+
+      <!-- RIGHT SIDE :: Level + Marks -->
+      <div class="right-info" style="font-size:18px; font-weight:600; color:white;">
+        <!-- Will be filled dynamically -->
+      </div>
+
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="assignment-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Level</th>
+          <th>Assignment</th>
+          <th>Grade</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="6">
+            <div class="loading">Loading</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+`;
+
+    const tbody = box.querySelector("tbody");
+
+    showLoader();
+    try {
+      const res = await fetch(`/hub/api/assignments?course=${encodeURIComponent(course)}`, {
+        credentials: "same-origin",
+        headers: { "X-XSRFToken": getXsrfToken() }
+      });
+      const data = await res.json();
+
+      tbody.innerHTML = "";
+
+      if (data.error) {
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <div class="empty-state-icon">⚠️</div>
+              <div>${data.message || "Error loading assignments"}</div>
+            </div>
+          </td>
+        </tr>
+      `;
+        return;
+      }
+
+      const assignments = data.assignments || [];
+      const courseType = data.course_type || "strict";
+
+      // ⭐ Extract Module Name here
+      let moduleName = "";
+      if (assignments.length > 0) {
+        const firstAssignment = assignments[0].name;
+        moduleName = firstAssignment.split("_")[0];  // take text before first "_"
+      }
+      // Update Module Name (left side)
+      box.querySelector(".module-name").textContent = moduleName.toUpperCase();
+
+
+      // ⭐ Update header with course & module name
+      // const titleDiv = box.querySelector(".course-box-title");
+      // titleDiv.textContent = `Course & Module Name: ${course} , ${moduleName}`;
+      //       titleDiv.innerHTML = `
+      //   <span style="font-size:22px; font-weight:600; color:white;">
+      //     Course: <span style="color:#ffe4c4;">${course}</span> 
+      //     &nbsp; | &nbsp;
+      //     Module: <span style="color:#fff59d;">${moduleName.toUpperCase()}</span>
+      //   </span>
+      // `;
+
+      if (assignments.length === 0) {
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <div>No assignments found for this course</div>
+            </div>
+          </td>
+        </tr>
+      `;
+        return;
+      }
+
+      let totalObtained = 0;
+      let totalMax = 0;
+      let currentLevel = "";
+
+      assignments.forEach((a, index) => {
+        const gradeNum = gradeToNumber(a.grade);
+        const isPassed = gradeNum >= 50;
+        const isGraded = a.grade && a.grade !== "—";
+
+        // ⭐ Correct level logic → Only update on PASS
+        if (isPassed) {
+          currentLevel = a.level;
+        }
+        let isLocked = false;
+
+        if (courseType === "strict") {
+          const prevGradeNum = index > 0 ? gradeToNumber(assignments[index - 1].grade) : Infinity;
+          isLocked = index > 0 && prevGradeNum < 50;
+        }
+
+        if (courseType === "easy") {
+          isLocked = false;
+        }
+
+        const gradeClass = getGradeClass(a.grade);
+        // const gradeDisplay = a.grade || 'Not graded';
+        let gradeDisplay = a.grade || 'Not graded';
+
+        if (gradeDisplay && gradeDisplay.includes("/")) {
+          const [obt, max] = gradeDisplay.split("/");
+          gradeDisplay = `${parseFloat(obt)} / ${parseFloat(max)}`;
+        }
+
+
+        let statusLabel = "";
+        const isPerfectScore = gradeNum === 100;
+
+        if (isLocked) {
+          statusLabel = `
+          <span class="status-badge">
+            <i class="fa-solid fa-lock" style="color:#FF0000;"></i>Locked
+          </span>`;
+        }
+        else if (isGraded) {
+          statusLabel = `
+          <span class="status-badge">
+            <i class="fa-solid fa-circle-check" 
+              style="color:${isPerfectScore ? '#21bb42' : '#adb5bd'};"></i> 
+            Graded
+          </span>`;
+        }
+        else {
+          statusLabel = `
+          <span class="status-badge">
+            <i class="fa-solid fa-lock-open" style="color:#21bb42;"></i> Unlocked
+          </span>`;
+        }
+
+        totalObtained += gradeNum;
+        totalMax += 100;
+
+        // if (!currentLevel) {
+        //   if (gradeNum >= 50) currentLevel = a.level;
+        //   else if (isLocked) currentLevel = a.level;
+        // }
+
+        // const disableButtons = gradeNum === 100;
+        // const disableButtons = gradeNum >= 50;
+        const disableButtons =
+          (gradeNum >= 50 && a.next_assignment_fetched === true) || gradeNum === 100;
+
+
+        const hasFeedback = a.submitted_at_utc && a.submitted_at_utc !== "—";
+
+        let attemptButtons = "";
+        let submitButton = "";
+        let evaluateButton = "";
+
+        if (isLocked) {
+          attemptButtons = `<span class="status-badge ">
+            <i class="fa-solid fa-lock" style="color:#FF0000;"></i>Locked
+          </span>`;
+        } else {
+          attemptButtons = a.notebooks.map(nb => `
+          <button 
+            class="attempt-btn auto-open"
+            data-course="${encodeURIComponent(course)}"
+            data-assignment="${a.name}"
+            data-notebook="${nb}"
+            data-index="${index}"
+            data-nextassignmentfetched="${a.next_assignment_fetched}"
+            data-currentassignmentfetched="${a.current_assignment_fetched}"
+            ${disableButtons ? "disabled" : ""}>
+            Attempt
+          </button>
+        `).join("");
+
+          submitButton = `<button 
+            class="submit-btn" 
+            data-assignment="${a.name}" 
+            data-course="${encodeURIComponent(course)}"
+            data-grade="${gradeNum}"
+            data-next_assignment_fetched="${a.next_assignment_fetched}"
+            ${disableButtons ? "disabled" : ""}>
+            Submit
+          </button>`;
+
+          evaluateButton = `<button 
+            class="evaluate-btn"
+            data-assignment="${a.name}"
+            data-course="${encodeURIComponent(course)}"
+            data-grade="${gradeNum}"
+            data-next_assignment_fetched="${a.next_assignment_fetched}"
+            ${disableButtons ? "disabled" : ""}>
+            Evaluate
+          </button>`;
+        }
+
+        const mainNotebook = a.notebooks[0]; // pick the first notebook
+
+        const feedbackButton = (!isLocked && hasFeedback)
+          ? `<button 
+              class="attempt-btn feedback-open-btn"
+              data-course="${encodeURIComponent(course)}"
+              data-assignment="${a.name}"
+              data-notebook="${mainNotebook}"
+              data-submitted="${a.submitted_at_utc}">
+              View Evaluation
+           </button>`
+          : "";
+
+        const row = document.createElement("tr");
+        if (isLocked) row.classList.add("locked-row");
+
+        row.innerHTML = `
+        ${isPassed
+            ? `<td style="text-align:center;"><i class="fa-solid fa-circle-check" style="color:#21bb42; font-size:20px;"></i></td>`
+            : `<td style="text-align:center;"><i class="fa-solid fa-circle-check" style="color:#b0b0b0; font-size:20px;"></i></td>`
+          }
+        <td>${a.level}</td>
+        <td>
+          <span class="assignment-name">${a.name}</span>
+          ${a.submitted_at_utc && a.submitted_at_utc !== "—"
+            ? `<div style="font-size:12px;color:#6c757d;margin-top:4px;">
+                Last Submission: ${convertUTCtoIST(a.submitted_at_utc.replace(" UTC", ""))}
+               </div>`
+            : ""}
+        </td>
+        <td><span class="grade-badge ${gradeClass}">${gradeDisplay}</span></td>
+        <td>${statusLabel}</td>
+        <td>
+          <div class="action-links">
+            ${attemptButtons}
+            ${submitButton}
+            ${evaluateButton}
+            ${feedbackButton || (!hasFeedback && !isLocked ? '<span class="locked-text">No feedback</span>' : '')}
+          </div>
+        </td>
+      `;
+
+        tbody.appendChild(row);
+      });
+
+      if (!currentLevel) {
+        currentLevel = "-";
+      }
+      box.querySelector(".right-info").innerHTML = `
+  Level Completed: <span style="color:#fff59d;">${currentLevel || "-"}</span>
+  &nbsp; | &nbsp;
+  Total Marks: 
+<span style="
+  color:#fff59d;
+  font-weight:900;
+  font-size:22px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+">
+  ${totalObtained} / ${totalMax}
+</span>
+`;
+
+
+      const existingSummary = box.querySelector('.assignment-summary');
+      if (existingSummary) existingSummary.remove();
+
+      // const summaryDiv = document.createElement('div');
+      // summaryDiv.className = 'assignment-summary';
+      // summaryDiv.textContent = `Total marks till now: ${totalObtained} / ${totalMax} | Current Level: ${currentLevel}`;
+      // box.appendChild(summaryDiv);
+
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          <div class="empty-state">
+            <div class="empty-state-icon">❌</div>
+            <div>Error loading assignments</div>
+          </div>
+        </td>
+      </tr>
+    `;
+    } finally {
+      hideLoader();
+    }
+  }
+
+  // Create modal dynamically
+  const modalOverlay = document.createElement("div");
+  modalOverlay.className = "confirm-modal-overlay";
+  modalOverlay.innerHTML = `
+  <div class="confirm-modal">
+    <h3>Confirm Assignment Start</h3>
+    <p>
+      Once you start this assignment, you will not be able to attempt the previous assignment again.
+      <br><br>
+      Do you want to continue?
+    </p>
+    <div class="confirm-buttons">
+      <button class="confirm-ok">Yes</button>
+      <button class="confirm-cancel">No</button>
+    </div>
+  </div>
+`;
+
+  // Append to root (since no <body>)
+  document.documentElement.appendChild(modalOverlay);
+
+  function showConfirmModal() {
+    return new Promise((resolve) => {
+      modalOverlay.style.display = "flex";
+
+      const cancelBtn = modalOverlay.querySelector(".confirm-cancel");
+      const okBtn = modalOverlay.querySelector(".confirm-ok");
+
+      cancelBtn.onclick = () => {
+        modalOverlay.style.display = "none";
+        resolve(false);
+      };
+
+      okBtn.onclick = () => {
+        modalOverlay.style.display = "none";
+        resolve(true);
+      };
+    });
+  }
+
+
+  // document.addEventListener("click", async (e) => {
+  //   if (!e.target.classList.contains("auto-open")) return;
+  //   e.preventDefault();
+  //   const course = decodeURIComponent(e.target.dataset.course);
+  //   const assignment = e.target.dataset.assignment;
+  //   const notebook = e.target.dataset.notebook;
+  //   const index = parseInt(e.target.dataset.index);
+  //   const assignmentFetched = e.target.dataset.assignmentfetched === "true";
+
+  //   // const confirmed = confirm(
+  //   //   "If you start this assignment, you cannot attempt the previous assignment again.\n\nDo you want to continue?"
+  //   // );
+
+  //   // if (!confirmed) {
+  //   //   return; // user cancelled
+  //   // }
+
+  //   if (index > 0) {
+  //     const confirmed = confirm(
+  //       "If you start this assignment, you cannot attempt the previous assignment again.\n\nDo you want to continue?"
+  //     );
+
+  //     if (!confirmed) {
+  //       return;
+  //     }
+  //   }
+  //   showLoader();
+  //   try {
+  //     const res = await fetch(
+  //       `/hub/api/assignments?action=fetch&course=${encodeURIComponent(course)}&assignment=${encodeURIComponent(assignment)}`,
+  //       {
+  //         credentials: "same-origin",
+  //         headers: { "X-XSRFToken": getXsrfToken() }
+  //       }
+  //     );
+  //     const data = await res.json();
+  //     if (data.error) {
+  //       alert(data.message);
+  //       return;
+  //     }
+  //     const { username } = await getAccessToken();
+  //     const url = `/user/${encodeURIComponent(username)}/lab/tree/${encodeURIComponent(course)}/${encodeURIComponent(assignment)}/${encodeURIComponent(notebook)}`;
+  //     window.open(url, "_blank");
+  //     await loadAssignments(course);
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Error opening assignment.");
+  //   } finally {
+  //     hideLoader();
+  //   }
+  // });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("auto-open")) return;
+
+    e.preventDefault();
+
+    const course = decodeURIComponent(e.target.dataset.course);
+    const assignment = e.target.dataset.assignment;
+    const notebook = e.target.dataset.notebook;
+    const index = parseInt(e.target.dataset.index);
+    // const current_assignment_fetched = e.target.dataset.currentassignmentfetched;
+    const current_assignment_fetched =
+      e.target.dataset.currentassignmentfetched === "true";
+
+
+    // Show modal only if NOT first assignment
+    if (index > 0 && !current_assignment_fetched) {
+      const confirmed = await showConfirmModal();
+      if (!confirmed) return;
+    }
+
+    showLoader();
+
+    try {
+      const res = await fetch(
+        `/hub/api/assignments?action=fetch&course=${encodeURIComponent(course)}&assignment=${encodeURIComponent(assignment)}`,
+        {
+          credentials: "same-origin",
+          headers: { "X-XSRFToken": getXsrfToken() }
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.error) {
+        alert(data.message);
+        return;
+      }
+
+      const { username } = await getAccessToken();
+
+      const url = `/user/${encodeURIComponent(username)}/lab/tree/${encodeURIComponent(course)}/${encodeURIComponent(assignment)}/${encodeURIComponent(notebook)}`;
+
+      window.open(url, "_blank");
+      await loadAssignments(course);
+
+    } catch (err) {
+      console.error(err);
+      alert("Error opening assignment.");
+    } finally {
+      hideLoader();
+    }
+  });
+
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target;
+    if (!btn.classList.contains("submit-btn")) return;
+    const gradeNum = parseInt(btn.dataset.grade || 0);
+    const nextAssignmentFetched = btn.dataset.next_assignment_fetched === "true";
+
+    if ((gradeNum >= 50 && nextAssignmentFetched) || gradeNum === 100) {
+      alert("Submission is not allowed.");
+      return;
+    }
+
+    const course = btn.dataset.course;
+    const assignment = btn.dataset.assignment;
+    const { encryptedText, username } = await getAccessToken();
+    btn.disabled = true;
+    const prevText = btn.textContent;
+    btn.textContent = "Submitting...";
+    showLoader();
+    try {
+      const res = await fetch(
+        `/hub/api/assignments?action=submit&course=${course}&assignment=${assignment}`,
+        {
+          credentials: "same-origin",
+          headers: { "X-XSRFToken": getXsrfToken() }
+        }
+      );
+      const submitData = await res.json();
+      if (submitData.error) {
+        alert("❌ Submission failed: " + submitData.message);
+        return;
+      }
+      alert(submitData.message)
+      await loadAssignments(course);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error occurred.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = prevText;
+      hideLoader();
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target;
+    if (!btn.classList.contains("evaluate-btn")) return;
+    const gradeNum = parseInt(btn.dataset.grade || 0);
+    const nextAssignmentFetched = btn.dataset.next_assignment_fetched === "true";
+
+    if ((gradeNum >= 50 && nextAssignmentFetched) || gradeNum === 100) {
+      alert("Evaluation is not allowed.");
+      return;
+    }
+    const course = btn.dataset.course;
+    const assignment = btn.dataset.assignment;
+    const { encryptedText, username } = await getAccessToken();
+    btn.disabled = true;
+    const prevText = btn.textContent;
+    btn.textContent = "Evaluating...";
+    showLoader();
+    try {
+      const host = window.location.hostname;
+      let server = "0";
+      const match = host.match(/(\d+)$/);
+      if (match) server = match[1];
+      const formData = new FormData();
+      formData.append("course_name", course);
+      formData.append("assignment_name", assignment);
+      formData.append("student", username);
+      formData.append("server", server);
+      formData.append("access_token", encryptedText);
+      formData.append("_xsrf", getXsrfToken());
+      const gradeRes = await fetch(`/hub/api/re-evaluate`, {
+        method: "POST",
+        body: formData,
+        headers: { "X-XSRFToken": getXsrfToken() },
+        credentials: "same-origin"
+      });
+      const text = await gradeRes.text();
+      const gradeData = text ? JSON.parse(text) : {};
+      if (gradeData.error) {
+        alert("❌ Autograding failed: " + gradeData.message);
+        return;
+      }
+      try {
+        const feedbackRes = await fetch(
+          `/hub/api/assignments?action=fetch_feedback&course=${course}&assignment=${assignment}`,
+          {
+            credentials: "same-origin",
+            headers: { "X-XSRFToken": getXsrfToken() }
+          }
+        );
+        const feedbackData = await feedbackRes.json();
+        alert(feedbackData.message);
+      } catch (err) {
+        console.error(err);
+        alert("Autograded, but error fetching feedback.");
+      }
+      await loadAssignments(course);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error occurred.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = prevText;
+      hideLoader();
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target;
+    if (!btn.classList.contains("feedback-open-btn")) return;
+    const course = decodeURIComponent(btn.dataset.course);
+    const assignment = btn.dataset.assignment;
+    const submittedUtc = btn.dataset.submitted;
+    let notebook = btn.dataset.notebook;
+
+    // Remove .ipynb if present
+    if (notebook.toLowerCase().endsWith(".ipynb")) {
+      notebook = notebook.slice(0, -6);   // removes last 6 chars: '.ipynb'
+    }
+
+    if (!submittedUtc) {
+      alert("No feedback attempt found.");
+      return;
+    }
+    showLoader();
+    try {
+      const { username } = await getAccessToken();
+      const url = `/user/${encodeURIComponent(username)}/lab/tree/${encodeURIComponent(course)}/${encodeURIComponent(assignment)}/feedback/${encodeURIComponent(submittedUtc)}/${encodeURIComponent(notebook)}.html`;
+      window.open(url, "_blank");
+      await loadAssignments(course);
+    } catch (err) {
+      console.error(err);
+      alert("Error opening feedback.");
+    } finally {
+      hideLoader();
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const courseList = [
+      {% for c in courses %}
+        "{{ c }}",
+    {% endfor %}
+    ];
+  for (const c of courseList) {
+    await loadAssignments(c);
+  }
+  });
+</script>
+
+{% endblock %}

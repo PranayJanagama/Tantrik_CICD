@@ -4,5 +4,10 @@ studenthome
 
 userhome
 
+teachers_setup
+
+# Python cache
+__pycache__/
+*.py[cod]
 
 student_setup/exchange
